@@ -40,31 +40,73 @@ namespace FileSystem
 
         private IEnumerable<string> FindAllFileAndDirectories(string path)
         {
-            foreach (var directory in _fileSystemProvider.GetDirectories(_path))
+            foreach (var directory in _fileSystemProvider.GetDirectories(path))
             {
-                OnDirectoryFound(directory);
+                var directoryArgs = OnDirectoryFound(directory);
+                var filteredDirectoryArgs = GetFilteredDirectoryArgs(directory);
 
-                if (_filter(directory))
-                    OnFilteredDirectoryFound(directory);
+                var isExcluded = IsExcluded(directoryArgs, filteredDirectoryArgs);
+
+                if (isExcluded)
+                    continue;
+
+                var shouldStop = ShouldStop(directoryArgs, filteredDirectoryArgs);
+
+                if(shouldStop)
+                    yield break;
 
                 yield return directory;
             }
 
-            foreach (var file in _fileSystemProvider.GetFiles(_path))
+            foreach (var file in _fileSystemProvider.GetFiles(path))
             {
-                var args = OnFileFound(file);
+                var fileArgs = OnFileFound(file);
+                var filteredFileArgs = GetFilteredFileArgs(file);
 
-                if (_filter(file))
-                    OnFilteredFileFound(file);
+                var isExcluded = IsExcluded(fileArgs, filteredFileArgs);
 
-                if (args.Exclude)
+                if (isExcluded)
                     continue;
 
-                if (args.Stop)
+                var shouldStop = ShouldStop(fileArgs, filteredFileArgs);
+
+                if (shouldStop)
                     yield break;
 
                 yield return file;
             }
+        }
+
+        private bool ShouldStop(ItemEventArgs args, ItemEventArgs filteredArgs)
+        {
+            if (filteredArgs == null) return false;
+
+            return args.Stop || filteredArgs.Stop;
+        }
+
+        private bool IsExcluded(ItemEventArgs args, ItemEventArgs filteredArgs)
+        {
+            if (filteredArgs == null) return false;
+
+            return args.Exclude || filteredArgs.Exclude;
+        }
+
+        private ItemEventArgs GetFilteredFileArgs(string filePath)
+        {
+            if (_filter == null) return null;
+
+            var isFiltered = _filter(filePath);
+
+            return isFiltered ? OnFilteredFileFound(filePath) : null;
+        }
+
+        private ItemEventArgs GetFilteredDirectoryArgs(string directoryPath)
+        {
+            if (_filter == null) return null;
+
+            var isFiltered = _filter(directoryPath);
+
+            return isFiltered ? OnFilteredDirectoryFound(directoryPath) : null;
         }
 
         private void OnStarted()
