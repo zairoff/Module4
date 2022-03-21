@@ -51,5 +51,5 @@ fileSystem.FilteredFileFound += (sender, args) =>
     };
 
 var items = fileSystem.FindAllFileAndDirectories();
-foreach (var item in items)
-    Console.WriteLine($"res: {item}");
+//foreach (var item in items)
+//    Console.WriteLine($"res: {item}");

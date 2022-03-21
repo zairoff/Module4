@@ -111,12 +111,12 @@ namespace FileSystem
 
         private void OnStarted()
         {
-            Started?.Invoke(this, EventArgs.Empty);
+            Started?.Invoke(this, ItemEventArgs.Empty);
         }
         
         private void OnFinished()
         {
-            Finished?.Invoke(this, EventArgs.Empty);
+            Finished?.Invoke(this, ItemEventArgs.Empty);
         }
 
         private ItemEventArgs OnDirectoryFound(string directoryPath)
