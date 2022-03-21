@@ -40,7 +40,8 @@ namespace FileSystem
 
         private IEnumerable<string> FindAllFileAndDirectories(string path)
         {
-            foreach (var directory in _fileSystemProvider.GetDirectories(path))
+            var directories = _fileSystemProvider.GetDirectories(path);
+            foreach (var directory in directories)
             {
                 var directoryArgs = OnDirectoryFound(directory);
                 var filteredDirectoryArgs = GetFilteredDirectoryArgs(directory);
@@ -58,7 +59,8 @@ namespace FileSystem
                 yield return directory;
             }
 
-            foreach (var file in _fileSystemProvider.GetFiles(path))
+            var files = _fileSystemProvider.GetFiles(path);
+            foreach (var file in files)
             {
                 var fileArgs = OnFileFound(file);
                 var filteredFileArgs = GetFilteredFileArgs(file);

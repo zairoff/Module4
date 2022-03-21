@@ -50,6 +50,6 @@ fileSystem.FilteredFileFound += (sender, args) =>
             $"\nStop: {args.Stop}");
     };
 
-var items = fileSystem.FindAllFileAndDirectories();
+var items = fileSystem.FindAllFileAndDirectories().ToList();
 //foreach (var item in items)
 //    Console.WriteLine($"res: {item}");
