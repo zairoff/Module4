@@ -11,10 +11,10 @@ namespace FileSystem
         private readonly Predicate<string> _filter;
         public event EventHandler Started;
         public event EventHandler Finished;
-        public EventHandler<ItemEventArgs> FileFound;
-        public EventHandler<ItemEventArgs> DirectoryFound;
-        public EventHandler<ItemEventArgs> FilteredDirectoryFound;
-        public EventHandler<ItemEventArgs> FilteredFileFound;
+        public event EventHandler<ItemEventArgs> FileFound;
+        public event EventHandler<ItemEventArgs> DirectoryFound;
+        public event EventHandler<ItemEventArgs> FilteredDirectoryFound;
+        public event EventHandler<ItemEventArgs> FilteredFileFound;
 
         public FileSystemVisitor(
             string path,
@@ -127,7 +127,6 @@ namespace FileSystem
             {
                 Path = directoryPath,
                 Name = _fileSystemProvider.GetDirectoryName(directoryPath),
-                ItemType = typeof(ItemEventArgs),
             };
 
             DirectoryFound?.Invoke(this, args);
@@ -141,7 +140,6 @@ namespace FileSystem
             {
                 Path = directoryPath,
                 Name = _fileSystemProvider.GetDirectoryName(directoryPath),
-                ItemType = typeof(ItemEventArgs),
             };
 
             FilteredDirectoryFound?.Invoke(this, args);
@@ -155,7 +153,6 @@ namespace FileSystem
             {
                 Path = filPath,
                 Name = _fileSystemProvider.GetFileName(filPath),
-                ItemType = typeof(ItemEventArgs),
             };
 
             FileFound?.Invoke(this, args);
@@ -169,7 +166,6 @@ namespace FileSystem
             {
                 Path = filPath,
                 Name = _fileSystemProvider.GetFileName(filPath),
-                ItemType = typeof(ItemEventArgs),
             };
 
             FilteredFileFound?.Invoke(this, args);
