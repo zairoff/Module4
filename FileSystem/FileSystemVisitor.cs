@@ -57,26 +57,27 @@ namespace FileSystem
                     yield break;
 
                 yield return directory;
-            }
 
-            var files = _fileSystemProvider.GetFiles(path);
-            foreach (var file in files)
-            {
-                var fileArgs = OnFileFound(file);
-                var filteredFileArgs = GetFilteredFileArgs(file);
+                var files = _fileSystemProvider.GetFiles(directory);
 
-                var isExcluded = IsExcluded(fileArgs, filteredFileArgs);
+                foreach (var file in files)
+                {
+                    var fileArgs = OnFileFound(file);
+                    var filteredFileArgs = GetFilteredFileArgs(file);
 
-                if (isExcluded)
-                    continue;
+                    isExcluded = IsExcluded(fileArgs, filteredFileArgs);
 
-                var shouldStop = ShouldStop(fileArgs, filteredFileArgs);
+                    if (isExcluded)
+                        continue;
 
-                if (shouldStop)
-                    yield break;
+                    shouldStop = ShouldStop(fileArgs, filteredFileArgs);
 
-                yield return file;
-            }
+                    if (shouldStop)
+                        yield break;
+
+                    yield return file;
+                }
+            }            
         }
 
         private bool ShouldStop(ItemEventArgs args, ItemEventArgs filteredArgs)

@@ -12,7 +12,6 @@ fileSystem.Finished += (sender, args) => System.Console.WriteLine("Finished");
 fileSystem.DirectoryFound += (sender, args) => 
     System.Console.WriteLine(
         $"DirectoryFound: {args.Name}" +
-        $" \nType: {args.ItemType}" +
         $" \nPath: {args.Path} " +
         $"\nExclude: {args.Exclude}" +
         $"\nStop: {args.Stop}");
@@ -20,7 +19,6 @@ fileSystem.DirectoryFound += (sender, args) =>
 fileSystem.FilteredDirectoryFound += (sender, args) => 
     System.Console.WriteLine(
         $"FilteredDirectoryFound: {args.Name} " +
-        $"\nType: {args.ItemType}" +
         $"\nPath: {args.Path}" +
         $"\nExclude: {args.Exclude}" +
         $"\nStop: {args.Stop}");
@@ -35,7 +33,6 @@ fileSystem.FileFound += (sender, args) =>
 
     System.Console.WriteLine(
         $"FileFound: {args.Name} " +
-        $"\nType: {args.ItemType}" +
         $"\nPath: {args.Path}" +
         $"\nExclude: {args.Exclude}" +
         $"\nStop: {args.Stop}");
@@ -44,7 +41,6 @@ fileSystem.FileFound += (sender, args) =>
 fileSystem.FilteredFileFound += (sender, args) =>
     {      
         System.Console.WriteLine($"FilteredFileFound: {args.Name}" +
-            $"\nType: {args.ItemType}" +
             $"\nPath: {args.Path}" +
             $"\nExclude: {args.Exclude}" +
             $"\nStop: {args.Stop}");

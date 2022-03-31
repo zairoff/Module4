@@ -21,7 +21,7 @@ namespace FileSystemTest
         [Fact]
         public void GetAllFileAndDirectories_Should_Raise_DefinedEvents()
         {
-            var eventsCount = 6;
+            var eventsCount = 4;
             var events = new List<ItemEventArgs>();
             var fakePath = "fake path";
 
