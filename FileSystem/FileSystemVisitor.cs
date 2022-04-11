@@ -8,6 +8,7 @@ namespace FileSystem
     {
         private readonly string _path;
         private readonly IFileSystemProvider _fileSystemProvider;
+        private readonly IPathProvider _pathProvider;
         private readonly Predicate<string> _filter;
         public event EventHandler Started;
         public event EventHandler Finished;
@@ -19,11 +20,13 @@ namespace FileSystem
         public FileSystemVisitor(
             string path,
             Predicate<string> filter = null,
-            IFileSystemProvider fileSystemProvider = null)
+            IFileSystemProvider fileSystemProvider = null,
+            IPathProvider pathProvider = null)
         {
             _path = path;
             _filter = filter;
             _fileSystemProvider = fileSystemProvider;
+            _pathProvider = pathProvider;
         }
         public IEnumerable<string> FindAllFileAndDirectories()
         {
@@ -127,7 +130,7 @@ namespace FileSystem
             var args = new ItemEventArgs
             {
                 Path = directoryPath,
-                Name = _fileSystemProvider.GetDirectoryName(directoryPath),
+                Name = _pathProvider.GetDirectoryName(directoryPath),
             };
 
             DirectoryFound?.Invoke(this, args);
@@ -140,7 +143,7 @@ namespace FileSystem
             var args = new ItemEventArgs
             {
                 Path = directoryPath,
-                Name = _fileSystemProvider.GetDirectoryName(directoryPath),
+                Name = _pathProvider.GetDirectoryName(directoryPath),
             };
 
             FilteredDirectoryFound?.Invoke(this, args);
@@ -153,7 +156,7 @@ namespace FileSystem
             var args = new ItemEventArgs
             {
                 Path = filPath,
-                Name = _fileSystemProvider.GetFileName(filPath),
+                Name = _pathProvider.GetFileName(filPath),
             };
 
             FileFound?.Invoke(this, args);
@@ -166,7 +169,7 @@ namespace FileSystem
             var args = new ItemEventArgs
             {
                 Path = filPath,
-                Name = _fileSystemProvider.GetFileName(filPath),
+                Name = _pathProvider.GetFileName(filPath),
             };
 
             FilteredFileFound?.Invoke(this, args);
