@@ -8,22 +8,25 @@ namespace FileSystem
     {
         private readonly string _path;
         private readonly IFileSystemProvider _fileSystemProvider;
+        private readonly IPathProvider _pathProvider;
         private readonly Predicate<string> _filter;
         public event EventHandler Started;
         public event EventHandler Finished;
-        public EventHandler<ItemEventArgs> FileFound;
-        public EventHandler<ItemEventArgs> DirectoryFound;
-        public EventHandler<ItemEventArgs> FilteredDirectoryFound;
-        public EventHandler<ItemEventArgs> FilteredFileFound;
+        public event EventHandler<ItemEventArgs> FileFound;
+        public event EventHandler<ItemEventArgs> DirectoryFound;
+        public event EventHandler<ItemEventArgs> FilteredDirectoryFound;
+        public event EventHandler<ItemEventArgs> FilteredFileFound;
 
         public FileSystemVisitor(
             string path,
             Predicate<string> filter = null,
-            IFileSystemProvider fileSystemProvider = null)
+            IFileSystemProvider fileSystemProvider = null,
+            IPathProvider pathProvider = null)
         {
             _path = path;
             _filter = filter;
             _fileSystemProvider = fileSystemProvider;
+            _pathProvider = pathProvider;
         }
         public IEnumerable<string> FindAllFileAndDirectories()
         {
@@ -40,41 +43,86 @@ namespace FileSystem
 
         private IEnumerable<string> FindAllFileAndDirectories(string path)
         {
-            foreach (var directory in _fileSystemProvider.GetDirectories(_path))
+            var directories = _fileSystemProvider.GetDirectories(path);
+            foreach (var directory in directories)
             {
-                OnDirectoryFound(directory);
+                var directoryArgs = OnDirectoryFound(directory);
+                var filteredDirectoryArgs = GetFilteredDirectoryArgs(directory);
 
-                if (_filter(directory))
-                    OnFilteredDirectoryFound(directory);
+                var isExcluded = IsExcluded(directoryArgs, filteredDirectoryArgs);
 
-                yield return directory;
-            }
-
-            foreach (var file in _fileSystemProvider.GetFiles(_path))
-            {
-                var args = OnFileFound(file);
-
-                if (_filter(file))
-                    OnFilteredFileFound(file);
-
-                if (args.Exclude)
+                if (isExcluded)
                     continue;
 
-                if (args.Stop)
+                var shouldStop = ShouldStop(directoryArgs, filteredDirectoryArgs);
+
+                if(shouldStop)
                     yield break;
 
-                yield return file;
-            }
+                yield return directory;
+
+                var files = _fileSystemProvider.GetFiles(directory);
+
+                foreach (var file in files)
+                {
+                    var fileArgs = OnFileFound(file);
+                    var filteredFileArgs = GetFilteredFileArgs(file);
+
+                    isExcluded = IsExcluded(fileArgs, filteredFileArgs);
+
+                    if (isExcluded)
+                        continue;
+
+                    shouldStop = ShouldStop(fileArgs, filteredFileArgs);
+
+                    if (shouldStop)
+                        yield break;
+
+                    yield return file;
+                }
+            }            
+        }
+
+        private bool ShouldStop(ItemEventArgs args, ItemEventArgs filteredArgs)
+        {
+            if (filteredArgs == null) return false;
+
+            return args.Stop || filteredArgs.Stop;
+        }
+
+        private bool IsExcluded(ItemEventArgs args, ItemEventArgs filteredArgs)
+        {
+            if (filteredArgs == null) return false;
+
+            return args.Exclude || filteredArgs.Exclude;
+        }
+
+        private ItemEventArgs GetFilteredFileArgs(string filePath)
+        {
+            if (_filter == null) return null;
+
+            var isFiltered = _filter(filePath);
+
+            return isFiltered ? OnFilteredFileFound(filePath) : null;
+        }
+
+        private ItemEventArgs GetFilteredDirectoryArgs(string directoryPath)
+        {
+            if (_filter == null) return null;
+
+            var isFiltered = _filter(directoryPath);
+
+            return isFiltered ? OnFilteredDirectoryFound(directoryPath) : null;
         }
 
         private void OnStarted()
         {
-            Started?.Invoke(this, EventArgs.Empty);
+            Started?.Invoke(this, ItemEventArgs.Empty);
         }
         
         private void OnFinished()
         {
-            Finished?.Invoke(this, EventArgs.Empty);
+            Finished?.Invoke(this, ItemEventArgs.Empty);
         }
 
         private ItemEventArgs OnDirectoryFound(string directoryPath)
@@ -82,8 +130,7 @@ namespace FileSystem
             var args = new ItemEventArgs
             {
                 Path = directoryPath,
-                Name = _fileSystemProvider.GetDirectoryName(directoryPath),
-                ItemType = typeof(ItemEventArgs),
+                Name = _pathProvider.GetDirectoryName(directoryPath),
             };
 
             DirectoryFound?.Invoke(this, args);
@@ -96,8 +143,7 @@ namespace FileSystem
             var args = new ItemEventArgs
             {
                 Path = directoryPath,
-                Name = _fileSystemProvider.GetDirectoryName(directoryPath),
-                ItemType = typeof(ItemEventArgs),
+                Name = _pathProvider.GetDirectoryName(directoryPath),
             };
 
             FilteredDirectoryFound?.Invoke(this, args);
@@ -110,8 +156,7 @@ namespace FileSystem
             var args = new ItemEventArgs
             {
                 Path = filPath,
-                Name = _fileSystemProvider.GetFileName(filPath),
-                ItemType = typeof(ItemEventArgs),
+                Name = _pathProvider.GetFileName(filPath),
             };
 
             FileFound?.Invoke(this, args);
@@ -124,8 +169,7 @@ namespace FileSystem
             var args = new ItemEventArgs
             {
                 Path = filPath,
-                Name = _fileSystemProvider.GetFileName(filPath),
-                ItemType = typeof(ItemEventArgs),
+                Name = _pathProvider.GetFileName(filPath),
             };
 
             FilteredFileFound?.Invoke(this, args);

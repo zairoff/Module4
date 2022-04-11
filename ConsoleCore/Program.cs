@@ -12,16 +12,16 @@ fileSystem.Finished += (sender, args) => System.Console.WriteLine("Finished");
 fileSystem.DirectoryFound += (sender, args) => 
     System.Console.WriteLine(
         $"DirectoryFound: {args.Name}" +
-        $" \nType: {args.ItemType}" +
         $" \nPath: {args.Path} " +
-        $"\nExclude: {args.Exclude}");
+        $"\nExclude: {args.Exclude}" +
+        $"\nStop: {args.Stop}");
 
 fileSystem.FilteredDirectoryFound += (sender, args) => 
     System.Console.WriteLine(
         $"FilteredDirectoryFound: {args.Name} " +
-        $"\nType: {args.ItemType}" +
         $"\nPath: {args.Path}" +
-        $"\nExclude: {args.Exclude}");
+        $"\nExclude: {args.Exclude}" +
+        $"\nStop: {args.Stop}");
 
 fileSystem.FileFound += (sender, args) => 
 {
@@ -33,25 +33,19 @@ fileSystem.FileFound += (sender, args) =>
 
     System.Console.WriteLine(
         $"FileFound: {args.Name} " +
-        $"\nType: {args.ItemType}" +
         $"\nPath: {args.Path}" +
-        $"\nExclude: {args.Exclude}");
+        $"\nExclude: {args.Exclude}" +
+        $"\nStop: {args.Stop}");
 };    
 
 fileSystem.FilteredFileFound += (sender, args) =>
     {      
         System.Console.WriteLine($"FilteredFileFound: {args.Name}" +
-            $"\nType: {args.ItemType}" +
             $"\nPath: {args.Path}" +
-            $"\nExclude: {args.Exclude}");
+            $"\nExclude: {args.Exclude}" +
+            $"\nStop: {args.Stop}");
     };
 
-var items = fileSystem.FindAllFileAndDirectories();
-foreach (var item in items)
-    Console.WriteLine($"res: {item}");
-
-
-void FileSystemSetup()
-{
-
-}
+var items = fileSystem.FindAllFileAndDirectories().ToList();
+//foreach (var item in items)
+//    Console.WriteLine($"res: {item}");

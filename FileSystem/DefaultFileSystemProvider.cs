@@ -16,7 +16,7 @@ namespace FileSystem
             return Path.GetDirectoryName(path);
         }
 
-        IEnumerable<string> IFileSystemProvider.GetDirectories(string path)
+        public IEnumerable<string> GetDirectories(string path)
         {
             return Directory.GetDirectories(path);
         }
